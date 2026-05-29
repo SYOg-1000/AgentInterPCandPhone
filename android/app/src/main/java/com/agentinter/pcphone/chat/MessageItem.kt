@@ -52,7 +52,7 @@ private fun isMarkdown(text: String): Boolean {
 
 /** 绾跨▼灞€閮ㄧ紦瀛橈紝閬垮厤姣忔鏍煎紡鍖栨柊寤?SimpleDateFormat */
 private val timeFormatter = ThreadLocal.withInitial {
-    SimpleDateFormat("HH:mm", Locale.getDefault())
+    SimpleDateFormat("HH:mm", Locale.getDefault())!!
 }
 
 /**
@@ -164,6 +164,6 @@ private fun formatRelativeTime(timestamp: Long): String {
         diff < 60_000 -> "鍒氬垰"
         diff < 3_600_000 -> "${diff / 60_000}鍒嗛挓鍓?
         diff < 86_400_000 -> "${diff / 3_600_000}灏忔椂鍓?
-        else -> timeFormatter.get().format(Date(timestamp))
+        else -> timeFormatter.get()!!.format(Date(timestamp))
     }
 }

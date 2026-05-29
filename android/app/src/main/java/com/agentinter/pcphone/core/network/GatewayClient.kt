@@ -45,7 +45,8 @@ class GatewayClient(
     @Volatile
     private var webSocket: WebSocket? = null
 
-    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+    @Volatile
+    private var scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     private var connectJob: Job? = null
     private var reconnectJob: Job? = null
 
@@ -215,7 +216,9 @@ class GatewayClient(
         okHttpClient?.connectionPool?.evictAll()
         okHttpClient = null
         cancelAllPending(PacketClosedException("Client disconnected"))
-        scope.cancel()  // 閲婃斁 CoroutineScope锛岄槻姝㈡硠婕?    }
+        scope.cancel()
+        scope = CoroutineScope(Dispatchers.IO + SupervisorJob())  // 閲嶅缓 scope锛屼笅娆?connect 鍙敤
+    }
 
     // 鈹€鈹€ Reconnect (exponential backoff) 鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€鈹€
 
