@@ -1,0 +1,28 @@
+# Android
+.gradle/
+build/
+local.properties
+*.iml
+.idea/
+captures/
+.externalNativeBuild/
+*.apk
+*.aab
+*.jks
+*.keystore
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+*.log
+
+# Sandbox build cache (涓存椂涓嬭浇/瑙ｅ帇鐨勭紪璇戝伐鍏?
+gradle-8.7-bin.zip
+gradle-8.7/
+jdk-17.0.19+10/
+jdk-17.zip
+test-download.zip
+android-cmdline-tools.zip
