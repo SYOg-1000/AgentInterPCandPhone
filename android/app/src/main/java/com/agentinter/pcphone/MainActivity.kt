@@ -4,12 +4,15 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.runtime.*
 import com.agentinter.pcphone.chat.ChatScreen
 import com.agentinter.pcphone.chat.ChatViewModel
 import com.agentinter.pcphone.core.config.AppConfig
+import com.agentinter.pcphone.core.config.ConfigProvider
 import com.agentinter.pcphone.core.network.GatewayClient
 import com.agentinter.pcphone.core.network.SessionManager
 import com.agentinter.pcphone.core.storage.AppDatabase
+import com.agentinter.pcphone.settings.SettingsScreen
 import com.agentinter.pcphone.ui.theme.AgentInterTheme
 
 class MainActivity : ComponentActivity() {
@@ -17,25 +20,38 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
-        // 閰嶇疆纭紪鐮侊紙鍚庣画鎺ュ叆 DataStore 鎸佷箙鍖?+ QR 鐮佹壂鎻忛厤缃級
-        val config = AppConfig(
-            gatewayHost = "127.0.0.1",
-            gatewayPort = 18789,
-            gatewayToken = "7449027094096872e0f93481dafab93bc06034cd524aa3a5"
-        )
-
-        val client = GatewayClient(
-            host = config.gatewayHost,
-            port = config.gatewayPort,
-            token = config.gatewayToken
-        )
-        val sessionManager = SessionManager(client)
-        val database = AppDatabase.getInstance(applicationContext)
-        val chatViewModel = ChatViewModel(client, sessionManager, database)
+        val configProvider = ConfigProvider(applicationContext)
 
         setContent {
+            val config by configProvider.config.collectAsState(initial = AppConfig())
+            var showSettings by remember {
+                mutableStateOf(config.gatewayToken.isBlank())
+            }
+
             AgentInterTheme {
-                ChatScreen(viewModel = chatViewModel)
+                if (showSettings) {
+                    SettingsScreen(
+                        config = config,
+                        configProvider = configProvider,
+                        onBack = { showSettings = false }
+                    )
+                } else {
+                    // key 鍩轰簬閰嶇疆鍐呭锛岄厤缃彉鏇存椂寮哄埗閲嶅缓 client/vm
+                    val configKey = "${config.gatewayHost}:${config.gatewayPort}:${config.gatewayToken}"
+                    key(configKey) {
+                        val client = remember {
+                            GatewayClient(config.gatewayHost, config.gatewayPort, config.gatewayToken)
+                        }
+                        val sessionManager = remember { SessionManager(client) }
+                        val database = remember { AppDatabase.getInstance(applicationContext) }
+                        val chatViewModel = remember { ChatViewModel(client, sessionManager, database) }
+
+                        ChatScreen(
+                            viewModel = chatViewModel,
+                            onOpenSettings = { showSettings = true }
+                        )
+                    }
+                }
             }
         }
     }

@@ -14,6 +14,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
@@ -26,7 +27,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.agentinter.pcphone.core.network.ConnectionState
-import com.agentinter.pcphone.settings.SettingsScreen
 
 /**
  * 鑱婂ぉ涓荤晫闈? *
@@ -35,16 +35,9 @@ import com.agentinter.pcphone.settings.SettingsScreen
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ChatScreen(viewModel: ChatViewModel) {
+fun ChatScreen(viewModel: ChatViewModel, onOpenSettings: () -> Unit = {}) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val inputText by viewModel.inputText.collectAsStateWithLifecycle()
-
-    var showSettings by remember { mutableStateOf(false) }
-
-    if (showSettings) {
-        SettingsScreen(onBack = { showSettings = false })
-        return
-    }
 
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
@@ -106,8 +99,8 @@ fun ChatScreen(viewModel: ChatViewModel) {
             TopAppBar(
                 title = { Text("AgentInter") },
                 actions = {
-                    IconButton(onClick = { showSettings = true }) {
-                        Icon(imageVector = Icons.Default.Close, contentDescription = "璁剧疆")  // 鐢?Close 鏆備唬榻胯疆鍥炬爣
+                    IconButton(onClick = onOpenSettings) {
+                        Icon(imageVector = Icons.Default.MoreVert, contentDescription = "璁剧疆")
                     }
                     // 杩炴帴鐘舵€?                    Text(
                         text = when (uiState.connectionStatus) {
